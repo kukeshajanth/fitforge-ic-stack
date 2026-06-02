@@ -1,0 +1,96 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// A FitForge location (gym branch).
+model Location {
+  id        String      @id @default(cuid())
+  name      String
+  city      String
+  classes   GymClass[]
+  members   Member[]
+}
+
+// A trainer / instructor.
+model Instructor {
+  id        String      @id @default(cuid())
+  name      String
+  bio       String?
+  classes   GymClass[]
+}
+
+// A member of FitForge.
+model Member {
+  id            String          @id @default(cuid())
+  name          String
+  email         String          @unique
+  joinedAt      DateTime        @default(now())
+  homeLocation  Location?       @relation(fields: [locationId], references: [id])
+  locationId    String?
+  bookings      Booking[]
+  waitlist      WaitlistEntry[]
+  // transcript 2 data: where wearable workout history would attach
+  workouts      Workout[]
+}
+
+// A scheduled class instance.
+model GymClass {
+  id            String          @id @default(cuid())
+  title         String          // e.g. "Rhythm Ride"
+  startsAt      DateTime
+  durationMin   Int             @default(45)
+  capacity      Int             @default(20)
+  location      Location        @relation(fields: [locationId], references: [id])
+  locationId    String
+  instructor    Instructor      @relation(fields: [instructorId], references: [id])
+  instructorId  String
+  bookings      Booking[]
+  waitlist      WaitlistEntry[]
+}
+
+// A confirmed booking (member got a spot).
+model Booking {
+  id         String   @id @default(cuid())
+  member     Member   @relation(fields: [memberId], references: [id])
+  memberId   String
+  gymClass   GymClass @relation(fields: [classId], references: [id])
+  classId    String
+  createdAt  DateTime @default(now())
+
+  @@unique([memberId, classId])
+}
+
+// A waitlist entry. position is the ordered slot on the waitlist.
+// IMPORTANT (transcript 1): this data EXISTS and the staff view shows it,
+// but the customer-facing class page does NOT surface `position` yet.
+// That gap is the transcript-1 slice.
+model WaitlistEntry {
+  id         String   @id @default(cuid())
+  member     Member   @relation(fields: [memberId], references: [id])
+  memberId   String
+  gymClass   GymClass @relation(fields: [classId], references: [id])
+  classId    String
+  position   Int      // 1 = next in line
+  createdAt  DateTime @default(now())
+
+  @@unique([memberId, classId])
+}
+
+// transcript 2 data: a logged workout. A wearable integration would
+// enrich these rows with heart rate / calories. Left intentionally sparse.
+model Workout {
+  id         String   @id @default(cuid())
+  member     Member   @relation(fields: [memberId], references: [id])
+  memberId   String
+  classTitle String
+  loggedAt   DateTime @default(now())
+  // these are null in the starter — a wearable slice would populate them
+  avgHeartRate Int?
+  peakHeartRate Int?
+  calories   Int?
+}

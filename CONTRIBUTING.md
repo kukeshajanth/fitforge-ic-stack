@@ -24,7 +24,7 @@ gh repo clone <your-handle>/fitforge-ic-stack
 cd fitforge-ic-stack
 
 # 3. Add the upstream remote (the original repo)
-git remote add upstream https://github.com/stemplicity/fitforge-ic-stack.git
+git remote add upstream https://github.com/kukeshajanth/fitforge-ic-stack.git
 
 # 4. Create your feature branch off dev
 git fetch upstream
@@ -37,7 +37,7 @@ git commit -m "feat: <what you shipped>"
 git push origin feat/<your-slice>
 
 # 7. Open a PR from your fork's feature branch INTO upstream's dev branch
-gh pr create --repo stemplicity/fitforge-ic-stack --base dev --head <your-handle>:feat/<your-slice>
+gh pr create --repo kukeshajanth/fitforge-ic-stack --base dev --head <your-handle>:feat/<your-slice>
 ```
 
 Your `/ship` skill (built on Day 2) automates steps 6-7.

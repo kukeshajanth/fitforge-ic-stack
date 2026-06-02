@@ -9,7 +9,7 @@ Run this once when you publish the FitForge template to GitHub. It locks `main`,
 git init
 git add .
 git commit -m "chore: FitForge starter for IC Stack cohort"
-gh repo create stemplicity/fitforge-ic-stack --public --source=. --remote=origin --push
+gh repo create kukeshajanth/fitforge-ic-stack --public --source=. --remote=origin --push
 ```
 
 ## 2. Create the dev branch

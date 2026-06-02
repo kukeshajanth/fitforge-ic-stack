@@ -1,0 +1,49 @@
+name: Guard main
+
+# main is the canonical starter. Nobody opens PRs into it.
+# Cohort work targets dev. This workflow auto-closes any PR opened
+# against main with a comment redirecting the author to dev.
+#
+# Uses pull_request_target so it runs in the base-repo context with a
+# write token (needed to close PRs from forks). It does NOT check out the
+# PR's code, so there is no untrusted-code execution risk.
+on:
+  pull_request_target:
+    branches: [main]
+    types: [opened, reopened]
+
+permissions:
+  pull-requests: write
+
+jobs:
+  close:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Close PR and redirect to dev
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: pr.number,
+              body: [
+                "Thanks for the PR. This repo does not accept pull requests into **main**.",
+                "",
+                "main is the canonical FitForge starter and stays frozen during cohorts.",
+                "Please open your PR against the **dev** branch instead:",
+                "",
+                "```bash",
+                "gh pr create --repo kukeshajanth/fitforge-ic-stack --base dev --head <your-handle>:<your-branch>",
+                "```",
+                "",
+                "See CONTRIBUTING.md for the full flow. Closing this one."
+              ].join("\n")
+            });
+            await github.rest.pulls.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: pr.number,
+              state: "closed"
+            });

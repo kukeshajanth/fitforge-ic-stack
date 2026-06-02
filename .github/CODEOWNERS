@@ -1,3 +1,2 @@
-# Maintainers who must review PRs into dev/main.
-# Replace with the real Stemplicity GitHub handles before cohort 1.
-*       @stemplicity-maintainers
+# Every change requires the owner to approve before it can merge.
+* @kukeshajanth
